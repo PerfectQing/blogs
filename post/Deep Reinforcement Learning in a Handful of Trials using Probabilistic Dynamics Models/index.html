@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models | BLOG</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://perfectqing.github.io/blogs/favicon.ico?v=1626771437070">
+<link rel="stylesheet" href="https://perfectqing.github.io/blogs/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models
+摘要：
+基于模型的强化学习算法可以获得很好的样本效率，但在渐近性能..." />
+    <meta name="keywords" content="meta-learning" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://perfectqing.github.io/blogs">
+        <img src="https://perfectqing.github.io/blogs/images/avatar.png?v=1626771437070" class="site-logo">
+        <h1 class="site-title">BLOG</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Carry on what you want...
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> Copyright © AlsoRan | <a class="rss" href="https://perfectqing.github.io/blogs/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models</h2>
+            <div class="post-date">2021-06-11</div>
+            
+              <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="deep-reinforcement-learning-in-a-handful-of-trials-using-probabilistic-dynamics-models">Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models</h1>
+<h2 id="摘要">摘要：</h2>
+<p>基于模型的强化学习算法可以获得很好的样本效率，但在渐近性能方面往往落后于最佳的无模型算法。对于大容量参数函数逼近器，例如深度网络，尤其如此。在本文中，我们研究了如何<strong>通过使用不确定性感知动态模型来弥合这一差距</strong>。我们提出了一种新的算法，称为带轨迹采样的概率集成（<strong>PETS</strong>），它将不确定性感知的深层网络动态模型与基于采样的不确定性传播相结合。我们与最先进的基于模型和无模型的深度逆向物流算法的比较表明，我们的方法在几个具有挑战性的基准任务上与无模型算法的渐近性能相匹配，同时<strong>需要的样本明显更少</strong>（例如，在<em><strong>half-cheetah*** 任务上，分别比</strong>SAC</em>*(Soft Actor Critic )和<strong>Proximal Policy Optimization</strong> 少8倍和125倍）。</p>
+<h2 id="1-introduction">1 Introduction</h2>
+<p>强化学习算法为决策和控制提供了一个自动化框架：通过指定一个更高级目标函数，强化学习算法原则上可以自动学习满足该目标的控制策略。然而，目前的无模型强化学习算法<strong>训练成本相当高</strong>，这往往限制了它们在模拟领域的应用。降低样本复杂性的一个有前途的方向是探索基于模型的强化学习(<strong>MBRL</strong>)方法，该方法首先获取世界的预测模型，然后使用该模型进行决策。然而，MBRL方法在普通基准任务上的渐近性能通常落后于无模型方法。也就是说，虽然MBRL方法往往学习得更快，但它们也往往收敛到不太理想的解。</p>
+<p>在本文中，我们朝着缩小基于模型和无模型的RL方法之间的差距迈出了一步。我们的方法基于几个观察，虽然相对简单，但对于良好的性能至关重要。</p>
+<p>我们首先观察到，<strong>模型容量</strong>是MBRL方法成功的关键因素：虽然高效模型(如高斯过程)可以非常快速地学习，但它们很难表示非常复杂和不连续的动态系统。相比之下，神经网络模型可以扩展到具有高维输入的大数据集，并且可以更有效地表示这样的系统。然而，神经网络面临着相反的问题：快速学习意味着用很少的数据学习，神经网络倾向于在小数据集上过度学习，对未来做出糟糕的预测。出于这个原因，MBRL与国家核计划已被证明格外具有挑战性。</p>
+<p>我们的第二个观察是，这个问题可以在很大程度上通过将<strong>不确定性</strong>适当地纳入动态模型来缓解。我们的工作是第一个将这些组件聚集在一个深度MBRL框架中，该框架在基准控制任务上达到了最先进的无模型RL方法的渐近性能。</p>
+<p>我们的主要贡献是一个名为“轨迹采样概率集成(PETS)”的MBRL算法，该算法采用大容量神经网络模型，通过自举模型<strong>集成不确定性</strong>，其中每个模型编码分布(与点预测相反)，在标准基准控制任务上以样本复杂性的一小部分与无模型方法的性能相媲美。PETS<strong>优于</strong>现有概率MBRL算法的一个优点是能够隔离两种不同类型的不确定性：<strong>任意性</strong>(固有的系统随机性)和<strong>认知性</strong>(由于数据有限，主观不确定性)。隔离认知不确定性对于指导探索特别有用，尽管我们将此留给未来的工作。最后，我们系统地分析了在模型训练和规划过程中，将不确定性引入MBRL神经网络如何影响性能。我们表明，PETS对不确定性的特殊处理显著减少了学习任务所需的数据量。</p>
+<h2 id="2-related-work">2 Related work</h2>
+<h2 id="3-model-based-reinforcement-learning">3 Model-based reinforcement learning</h2>
+<p>介绍基于模型的强化学习相关内容。</p>
+<p>一旦我们学习到动态模型后，我么就可以通过学习到的这个模型去预测一系列动作所产生的状态轨迹的分布。通过计算状态轨迹上的期望回报，我们可以评估多个候选动作序列，并选择最佳动作序列来使用。</p>
+<h2 id="4-uncertainty-aware-neural-network-dynamics-models">4 Uncertainty-aware neural network dynamics models</h2>
+<p>本节描述了几种方法来模拟任务的真实（但未知的）动态函数，包括我们的方法：自举概率神经网络的集成**（an ensemble of bootstrapped probabilistic neural networks）**。</p>
+<p>虽然不确定性意识动态模型已经在许多先前的工作中进行了探索，但是关于不确定性的引入的实施和设计决策的<strong>具体细节</strong>还没有经过严格的经验分析。因此，先前的工作已经普遍发现，表达性参数模型，例如深度神经网络，<strong>一般不会产生基于模型的RL算法</strong>，这些算法在渐近性能方面与其无模型的对应物相竞争，并且经常甚至发现更简单的时变线性模型可以优于表达性神经网络模型。</p>
+<p>一个主要的挑战是建立一个在低和高数据状态下表现良好的模型：在训练的早期阶段，数据是稀缺的，并且高表达的函数逼近器容易过拟合；在训练的后期阶段，数据是丰富的，但是对于具有复杂动态的系统，简单的函数逼近器可能会不足（拟合不够）。</p>
+<p>在这篇论文中，我们研究如何将表达性的神经网络纳入MBRL。为了解释不确定性，我们研究了模拟两种不确定性的神经网络。第一种类型，<strong>随机不确定性</strong>，源于系统固有的随机性，例如观察噪声和过程噪声。随机不确定性可以通过输出参数化分布的参数来捕获，同时仍然有区别地训练网络。第二种类型——<strong>认知不确定性</strong>——对应于对动态功能的主观不确定性，因为缺乏足够的数据来唯一准确地确定底层系统。在无限数据的限制下，认知不确定性应该消失，但是对于有限大小的数据集，预测转换时主观不确定性仍然存在。正是贝叶斯建模擅长的主观认知不确定性有助于减轻过度拟合。下面，我们描述如何使用“概率网络”的组合来捕捉随机不确定性，以及如何使用“集合”来捕捉认知不确定性。表1总结了每种组合。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://perfectqing.github.io/blogs/tag/jgVN7rH4D/" class="tag">
+                    meta-learning
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://perfectqing.github.io/blogs/post/tf_learning/">
+                  <h3 class="post-title">
+                    TensorFlow2.0 学习笔记
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

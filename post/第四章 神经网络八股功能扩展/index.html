@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第四章 神经网络八股功能扩展 | BLOG</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://perfectqing.github.io/blogs/favicon.ico?v=1626771437070">
+<link rel="stylesheet" href="https://perfectqing.github.io/blogs/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="👏  第四章 神经网络八股功能扩展
+✍️  本章目标：自制数据集，解决本领域应用、数据增强，扩充数据集、断点续训，存取模型、参数提取，把参数存入文本、acc/loss可视化，查看训练效果、应用程序，给图识物
+
+第四章 神经网络八股功能扩展..." />
+    <meta name="keywords" content="TensorFlow 笔记" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://perfectqing.github.io/blogs">
+        <img src="https://perfectqing.github.io/blogs/images/avatar.png?v=1626771437070" class="site-logo">
+        <h1 class="site-title">BLOG</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Carry on what you want...
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> Copyright © AlsoRan | <a class="rss" href="https://perfectqing.github.io/blogs/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第四章 神经网络八股功能扩展</h2>
+            <div class="post-date">2021-07-16</div>
+            
+              <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>👏  第四章 神经网络八股功能扩展<br>
+✍️  本章目标：自制数据集，解决本领域应用、数据增强，扩充数据集、断点续训，存取模型、参数提取，把参数存入文本、acc/loss可视化，查看训练效果、应用程序，给图识物</p>
+<!-- more -->
+<h2 id="第四章-神经网络八股功能扩展">第四章 神经网络八股功能扩展</h2>
+<h4 id="本章目标">本章目标：</h4>
+<ol>
+<li>自制数据集，解决本领域应用</li>
+<li>数据增强，扩充数据集</li>
+<li>断点续训，存取模型</li>
+<li>参数提取，把参数存入文本</li>
+<li>acc/loss可视化，查看训练效果</li>
+<li>应用程序，给图识物</li>
+</ol>
+<h4 id="41-自制数据集解决本领域应用">4.1 自制数据集，解决本领域应用</h4>
+<p>观察数据集结构，给x_train, y_train, x_test, y_test赋值</p>
+<p>mnist_image_label文件夹： <code>class4 &gt; MNIST_FC &gt; mnist_image_label</code></p>
+<p>mnist_train_jpg_60000<br>
+mnist_test_jpg_10000</p>
+<figure data-type="image" tabindex="1"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_210715130025image-20210319084059005.png" alt="4-1" loading="lazy"></figure>
+<p>mnist_train_jpg_60000.txt<br>
+mnist_test_jpg_10000.txt</p>
+<figure data-type="image" tabindex="2"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107151301194-2.png" alt="4-2" loading="lazy"></figure>
+<pre><code class="language-python">mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+</code></pre>
+<pre><code class="language-python">def generareds(图片路径, 标签文件):  # 替换上加载文件为本地数据集
+</code></pre>
+<pre><code class="language-python">def generateds(path, txt):
+    f = open(txt, 'r')  # 以只读形式打开txt文件
+    contents = f.readlines()  # 读取文件中所有行
+    f.close()  # 关闭txt文件
+    x, y_ = [], []  # 建立空列表
+    for content in contents:  # 逐行取出
+        value = content.split()  # 以空格分开，图片路径为value[0] , 标签为value[1] , 存入列表
+        img_path = path + value[0]  # 拼出图片路径和文件名
+        img = Image.open(img_path)  # 读入图片
+        img = np.array(img.convert('L'))  # 图片变为8位宽灰度值的np.array格式
+        img = img / 255.  # 数据归一化 （实现预处理）
+        x.append(img)  # 归一化后的数据，贴到列表x
+        y_.append(value[1])  # 标签贴到列表y_
+        print('loading : ' + content)  # 打印状态提示
+
+    x = np.array(x)  # 变为np.array格式
+    y_ = np.array(y_)  # 变为np.array格式
+    y_ = y_.astype(np.int64)  # 变为64位整型
+    return x, y_  # 返回输入特征x，返回标签y_
+</code></pre>
+<h4 id="42-数据增强">4.2 数据增强</h4>
+<p>数据增强（增大数据量）</p>
+<pre><code class="language-python"># tensorflow2 给出的数据增强函数
+image_gen_train = tf.keras.preprocessing.image.ImageDataGenerator(
+	rescale = 所有数据将乘以该数值
+    rotation_range = 随机旋转角度数范围
+    width_shift_range = 随机宽度偏移量
+    height_shift_range = 随机高度偏移量
+    水平翻转：horizontal_flip = 是否随机水平翻转
+    随即缩放：zoom_range = 随机缩放的范围[1 - n, 1 + n]
+)
+image_gen_train.fit(x_train)
+</code></pre>
+<p><strong>💬 Example</strong></p>
+<pre><code class="language-python">image_gen_train = ImageDataGenerator(
+	rescale=1. / 1.,  # 如为图像，分母为255时，可归至0~1
+    rotation_range=45,  # 随机45度旋转
+    width_shift_range=.15,  # 宽度偏移
+    height_shift_range=.15,  # 高度偏移
+    horizontal_flip=False,  # 水平翻转
+    zoom_range=0.5  # 将图像随机缩放阈量50%
+)
+image_gen_train.fit(x_train)
+# 此处x_train要修改维度
+x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
+# (60000, 28, 28)  →  (60000, 28, 28, 1)
+model.fit(x_trsain, y_train, batch_size=32, ......)
+# 改为
+model.fit(image_gen_train.flow(x_train, y_train, batch_size=32), ......)
+</code></pre>
+<p><strong>p13_mnist_train_ex2.py</strong></p>
+<pre><code class="language-python">import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)  # 给数据增加一个维度,从(60000, 28, 28)reshape为(60000, 28, 28, 1)  最后一个1表示单通道(灰度值)
+
+image_gen_train = ImageDataGenerator(
+    rescale=1. / 1.,  # 如为图像，分母为255时，可归至0～1
+    rotation_range=45,  # 随机45度旋转
+    width_shift_range=.15,  # 宽度偏移
+    height_shift_range=.15,  # 高度偏移
+    horizontal_flip=False,  # 水平翻转
+    zoom_range=0.5  # 将图像随机缩放阈量50％
+)
+image_gen_train.fit(x_train)
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              metrics=['sparse_categorical_accuracy'])
+
+model.fit(image_gen_train.flow(x_train, y_train, batch_size=32), epochs=5, validation_data=(x_test, y_test),
+          validation_freq=1)
+model.summary()
+</code></pre>
+<h4 id="43-断点续训">4.3 断点续训</h4>
+<h5 id="读取保存模型">读取保存模型</h5>
+<ul>
+<li>
+<p>读取模型</p>
+<p>load_weights(路径文件名)</p>
+<pre><code class="language-python">checkpoint_save_path = './checkpoint/mnist.ckpt'
+if os.path.exists(checkpoint_save_path + '.index'):
+    print('-------------load the model------------')
+    model.load_weights(checkpoint_save_path)
+</code></pre>
+</li>
+<li>
+<p>保存模型</p>
+<pre><code class="language-python">tf.keras.callbacks.ModelCheckpoint(
+    filepath=路径文件名,
+    save_weights_only=True/False,  # 只保留模型参数
+    save_best_only=True/False  # 只保留最优模型
+)
+history = model.fit(callbacks=[cp_callback])
+</code></pre>
+<pre><code class="language-python">cp_callback = tf.keras.callbacks.ModelCheckpoint(
+	filepath=checkpoint_save_path,
+    save_weights_only=True,  # 只保留模型参数
+    save_best_only=True  # 只保留最优模型
+)
+history = model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1, callbacks=[cp_callback])
+</code></pre>
+</li>
+<li>
+<p>完整代码</p>
+<pre><code class="language-python">import tensorflow as tf
+import os
+
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              metrics=['sparse_categorical_accuracy'])
+
+checkpoint_save_path = &quot;./checkpoint/mnist.ckpt&quot;
+if os.path.exists(checkpoint_save_path + '.index'):
+    print('-------------load the model-----------------')
+    model.load_weights(checkpoint_save_path)
+
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_save_path,
+                                                 save_weights_only=True,
+                                                 save_best_only=True)
+
+history = model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1,
+                    callbacks=[cp_callback])
+model.summary()
+</code></pre>
+</li>
+</ul>
+<h4 id="44-参数提取把参数存入文本">4.4 参数提取，把参数存入文本</h4>
+<ul>
+<li>
+<p>提取可训练参数</p>
+<p><code>model.trainable_variables</code>  返回模型中可训练的参数</p>
+</li>
+<li>
+<p>设置print输出格式</p>
+<p><code>np.set_printoptions(threshold=超过多少省略显示)</code></p>
+<pre><code class="language-python">np.set_printoptions(threshold=np.inf)  # np.inf表示无限大
+
+print(model.trainable_variables)
+file = open('./weights.txt', 'w')
+for v in model.trainable_variables:
+    file.write(str(v.name) + '\n')
+    file.write(str(v.shape) + '\n')
+    file.write(str(v.numpy()) + '\n')
+file.close()
+</code></pre>
+</li>
+<li>
+<p>完整代码</p>
+<pre><code class="language-python">import tensorflow as tf
+import os
+import numpy as np
+np.set_printoptions(threshold=np.inf)
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              metrics=['sparse_categorical_accuracy'])
+checkpoint_save_path = &quot;./checkpoint/mnist.ckpt&quot;
+if os.path.exists(checkpoint_save_path + '.index'):
+    print('-------------load the model-----------------')
+    model.load_weights(checkpoint_save_path)
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_save_path,
+                                                 save_weights_only=True,
+                                                 save_best_only=True)
+history = model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1,
+                    callbacks=[cp_callback])
+model.summary()
+print(model.trainable_variables)
+file = open('./weights.txt', 'w')
+for v in model.trainable_variables:
+    file.write(str(v.name) + '\n')
+    file.write(str(v.shape) + '\n')
+    file.write(str(v.numpy()) + '\n')
+file.close()
+</code></pre>
+</li>
+</ul>
+<h4 id="45-accloss可视化查看训练效果">4.5 acc/loss可视化，查看训练效果</h4>
+<ul>
+<li>
+<p>acc曲线与loss曲线</p>
+<p><strong>history = model.fit</strong>(训练集数据, 训练集标签, batch_size=, epochs=, validation_split=用作测试数据的比例, validation_data=测试集, validation_freq=测试频率)</p>
+<p><strong>history:</strong> (训练过程中会保存训练集和测试集的loss)</p>
+<p>训练集loss：loss<br>
+测试集loss：val_loss<br>
+训练集准确率：sparse_categorical_accuracy<br>
+测试集准确率：val_sparse_categorical_accuracy</p>
+<pre><code class="language-python">acc = history.history['sparse_categorical_accuracy']
+val_acc = history.history['val_sparse_categorical_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+</code></pre>
+</li>
+<li>
+<p>完整代码 (最好可以背下来)</p>
+<pre><code class="language-python">import os
+
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+np.set_printoptions(threshold=np.inf)
+
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+model.compile(
+	optimizer='adam',
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+    metrics=['sparse_categorical_accuracy']
+)
+
+checkpoint_save_path = './checkpoint/mnist.ckpt'
+if os.path.exists(checkpoint_save_path + '.index'):
+    print('-------------load the model------------')
+    model.load_weights(checkpoint_save_path)
+    
+cp_callback = tf.keras.callbacks.ModelCheckpoint(
+    filepath=checkpoint_save_path,
+    save_weights_only=True,
+    save_best_only=True                                                )
+
+history = model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1, callbacks=[cp_callback])
+model.summary()
+
+print(model.trainable_variables)
+file = open('./weights.txt', 'w')
+for v in model.trainable_variables:
+    file.write(str(v.name) + '\n')
+    file.write(str(v.shape) + '\n')
+    file.write(str(v.numpy()) + '\n')
+file.close()
+
+
+########################Show###################
+acc = history.history['sparse_categorical_accuracy']
+val_acc = history.history['val_sparse_categorical_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+plt.subplot(1, 2, 1)  # 分为一行两列，先画第一列
+plt.plot(acc, label='Training Accuracy')
+plt.plot(val_acc, label='Validation Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.legend()
+
+plt.subplot(1, 2, 2)  # 分为一行两列，画第二列
+plt.plot(loss, label='Training Loss')
+plt.plot(val_loss, label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.legend()
+plt.show()
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107151302104-3.png" alt="4-3" loading="lazy"></figure>
+</li>
+</ul>
+<h4 id="46-给图识物">4.6 给图识物</h4>
+<ul>
+<li>
+<p>前向传播执行应用</p>
+<p>predict(输入特征, batch_size=整数)</p>
+<p>返回前向传播计算结果</p>
+</li>
+</ul>
+<p><strong>复现模型（前向传播）</strong>  <code>model = tf.keras.models.Sequential([......])</code><br>
+<strong>加载参数</strong>  <code>model.load_weights(model_save_path)</code><br>
+<strong>预测结果</strong>  <code>result = model.predict(x_predict)</code></p>
+<pre><code class="language-python">from PIL import Image
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+model.load_weights(model_save_path)
+
+preNum = int(input('input the number of test pictures:'))
+
+
+for i in range(preNum):
+    image_path = input('the path of test picture:')
+    img = Image.open(image_path)
+    # 训练图片是28行28列的灰度图，故输入的任意尺寸的图片需要resize()
+    img = img.resize((28, 28), Image.ANTIALIAS)
+    img_arr = np.array(img.convert('L'))
+    
+    # img_arr = 255 - img_arr  # 预处理，与后面的预处理二选其一
+    
+    # 将图片处理为高对比度图片，即预处理
+    for i in range(28):
+        for j in range(28):
+            if img_arr[i][j] &lt; 200:
+                img_arr[i][j] = 255
+            else:
+                img_arr[i][j] = 0
+    
+    
+    img_arr = img_arr / 255.0  # 归一化
+    x_predict = img_arr[tf.newaxis, ...]
+    result = model.predict(x_predict)
+    pred = tf.argmax(result, axis=1)
+    print('\n')
+    tf.print(pred)
+    
+    plt.pause(1)
+    plt.close()
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://perfectqing.github.io/blogs/tag/S2mqBZ0HP/" class="tag">
+                    TensorFlow 笔记
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://perfectqing.github.io/blogs/post/第三章 使用八股搭建神经网络/">
+                  <h3 class="post-title">
+                    第三章 使用八股搭建神经网络
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

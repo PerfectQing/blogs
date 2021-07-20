@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>BLOG</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://perfectqing.github.io/blogs/favicon.ico?v=1626771437070">
+<link rel="stylesheet" href="https://perfectqing.github.io/blogs/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="Carry on what you want...">
+    
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://perfectqing.github.io/blogs">
+        <img src="https://perfectqing.github.io/blogs/images/avatar.png?v=1626771437070" class="site-logo">
+        <h1 class="site-title">BLOG</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Carry on what you want...
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> Copyright © AlsoRan | <a class="rss" href="https://perfectqing.github.io/blogs/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/第六章 循环神经网络/">
+                  <h2 class="post-title">第六章 循环神经网络</h2>
+                </a>
+                <div class="post-date">
+                  2021-07-19
+                </div>
+                <div class="post-abstract">
+                  <p>👏  第六章 循环神经网络<br>
+✍️  本讲目标：用RNN实现连续数据的预测（以股票预测为例）、回顾卷积神经网络、循环神经网络、实践：ABCDE字母预测、实践：股票预测</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/第六章 循环神经网络/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/第六章 循环神经网络.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/第五章 神经网络卷积计算/">
+                  <h2 class="post-title">第五章 神经网络卷积计算</h2>
+                </a>
+                <div class="post-date">
+                  2021-07-18
+                </div>
+                <div class="post-abstract">
+                  <p>👏  第五章 神经网络卷积计算<br>
+✍️  本章目标：介绍以及实现神经网络卷积计算</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/第五章 神经网络卷积计算/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/第四章 神经网络八股功能扩展/">
+                  <h2 class="post-title">第四章 神经网络八股功能扩展</h2>
+                </a>
+                <div class="post-date">
+                  2021-07-16
+                </div>
+                <div class="post-abstract">
+                  <p>👏  第四章 神经网络八股功能扩展<br>
+✍️  本章目标：自制数据集，解决本领域应用、数据增强，扩充数据集、断点续训，存取模型、参数提取，把参数存入文本、acc/loss可视化，查看训练效果、应用程序，给图识物</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/第四章 神经网络八股功能扩展/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/第三章 使用八股搭建神经网络/">
+                  <h2 class="post-title">第三章 使用八股搭建神经网络</h2>
+                </a>
+                <div class="post-date">
+                  2021-07-15
+                </div>
+                <div class="post-abstract">
+                  <p>👏  第三章 使用八股搭建神经网络<br>
+✍️  本讲目标：神经网络搭建八股、iris代码复现、MNIST数据集、训练MNIST数据集、Fashion数据集</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/第三章 使用八股搭建神经网络/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/第二章 神经网络优化及参数更新/">
+                  <h2 class="post-title">第二章 神经网络优化及参数更新</h2>
+                </a>
+                <div class="post-date">
+                  2021-07-13
+                </div>
+                <div class="post-abstract">
+                  <p>👏  第二章 神经网络优化及参数更新<br>
+✍️  本讲目标：学会神经网络优化过程，使用正则化减少过拟合，使用优化器更新网络参数。</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/第二章 神经网络优化及参数更新/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/第一章  神经网络计算过程及介绍/">
+                  <h2 class="post-title">第一章  神经网络计算过程及介绍</h2>
+                </a>
+                <div class="post-date">
+                  2021-07-12
+                </div>
+                <div class="post-abstract">
+                  <p>👏  第一章  神经网络计算过程及介绍<br>
+✍️  本讲目标：学会神经网络计算过程，使用基于TF2原生代码搭建你的第一个神经网络训练模型。</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/第一章  神经网络计算过程及介绍/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models/">
+                  <h2 class="post-title">Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models</h2>
+                </a>
+                <div class="post-date">
+                  2021-06-11
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/Deep Reinforcement Learning in a Handful of Trials using Probabilistic Dynamics Models/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/tf_learning/">
+                  <h2 class="post-title">TensorFlow2.0 学习笔记</h2>
+                </a>
+                <div class="post-date">
+                  2021-06-11
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/tf_learning/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/tf-learning.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/OPTIMIZATION/">
+                  <h2 class="post-title">MODEL-ENSEMBLE TRUST-REGION POLICY OPTIMIZATION</h2>
+                </a>
+                <div class="post-date">
+                  2021-06-11
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://perfectqing.github.io/blogs/post/hello-gridea/">
+                  <h2 class="post-title">Hello Gridea</h2>
+                </a>
+                <div class="post-date">
+                  2018-12-12
+                </div>
+                <div class="post-abstract">
+                  <p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://perfectqing.github.io/blogs/post/hello-gridea/">
+                  <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+                  </div>
+                </a>
+              
+            </article>
+          
+
+          <div class="pagination-container">
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第五章 神经网络卷积计算 | BLOG</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://perfectqing.github.io/blogs/favicon.ico?v=1626771437070">
+<link rel="stylesheet" href="https://perfectqing.github.io/blogs/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="👏  第五章 神经网络卷积计算
+✍️  本章目标：介绍以及实现神经网络卷积计算
+
+第五章 神经网络卷积计算
+5.1 卷积计算过程
+
+
+全连接NN：每个神经元与前向相邻层的每一个神经元都有连接关系，输入是特征，输出为预测的结果。
+参数个数：..." />
+    <meta name="keywords" content="TensorFlow 笔记" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://perfectqing.github.io/blogs">
+        <img src="https://perfectqing.github.io/blogs/images/avatar.png?v=1626771437070" class="site-logo">
+        <h1 class="site-title">BLOG</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Carry on what you want...
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> Copyright © AlsoRan | <a class="rss" href="https://perfectqing.github.io/blogs/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第五章 神经网络卷积计算</h2>
+            <div class="post-date">2021-07-18</div>
+            
+              <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>👏  第五章 神经网络卷积计算<br>
+✍️  本章目标：介绍以及实现神经网络卷积计算</p>
+<!-- more -->
+<h3 id="第五章-神经网络卷积计算">第五章 神经网络卷积计算</h3>
+<h4 id="51-卷积计算过程">5.1 卷积计算过程</h4>
+<ul>
+<li>
+<p>全连接NN：每个神经元与前向相邻层的每一个神经元都有连接关系，输入是特征，输出为预测的结果。<br>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">参</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">个</mi><mi mathvariant="normal">数</mi><mi mathvariant="normal">：</mi><msub><mo>∑</mo><mrow><mi mathvariant="normal">各</mi><mi mathvariant="normal">层</mi></mrow></msub><mo>(</mo><mi mathvariant="normal">前</mi><mi mathvariant="normal">层</mi><mo>×</mo><mi mathvariant="normal">后</mi><mi mathvariant="normal">层</mi><mo>+</mo><mi mathvariant="normal">后</mi><mi mathvariant="normal">层</mi><mo>)</mo></mrow><annotation encoding="application/x-tex">参数个数：\sum_{各层}(前层\times后层+后层)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0497100000000001em;vertical-align:-0.29971000000000003em;"></span><span class="mord cjk_fallback">参</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">个</span><span class="mord cjk_fallback">数</span><span class="mord cjk_fallback">：</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:-0.29971000000000003em;"><span style="top:-2.40029em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord cjk_fallback mtight">各</span><span class="mord cjk_fallback mtight">层</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29971000000000003em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord cjk_fallback">前</span><span class="mord cjk_fallback">层</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord cjk_fallback">后</span><span class="mord cjk_fallback">层</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord cjk_fallback">后</span><span class="mord cjk_fallback">层</span><span class="mclose">)</span></span></span></span></p>
+<figure data-type="image" tabindex="1"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180548055-1.png" alt="5-1" loading="lazy"></figure>
+<p>由于实际项目中的图片是高分辨率彩色图，参数过多，将可能导致模型过拟合。<br>
+故实际应用时会先对原始图像进行特征提取，再把提取到的特征送给全连接网络。</p>
+</li>
+<li>
+<p>卷积 (Convolutional)</p>
+<p>卷积计算可认为是一种有效提取图像特征的方法<br>
+输入特征图上滑动，遍历输入特征图中的每个像素点。每一个步长，卷积核会与输入特征图出现重合区域，重合区域对应元素相乘、求和再加上偏置项得到输出特征的一个像素点。</p>
+<p>要使卷积核的通道数与输入特征图的通道数一致。</p>
+<p><strong>输入特征图的深度（channel数），决定了当前层卷积核的深度；</strong><br>
+<strong>当前层卷积核的个数，决定了当前层输出特征图的深度。</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180550435-2.png" alt="5-2" loading="lazy"></figure>
+<ul>
+<li>单通道</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180550525-3.png" alt="5-3" loading="lazy"></figure>
+<ul>
+<li>三通道</li>
+</ul>
+<figure data-type="image" tabindex="4"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180550585-4.png" alt="5-4" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://mlnotebook.github.io/img/CNN/convSobel.gif" alt="5-5" loading="lazy"></figure>
+<p>当有n个卷积核时，会有n张输出特征图，叠加在输出特征图的后面。</p>
+</li>
+</ul>
+<h4 id="52-感受野">5.2 感受野</h4>
+<ul>
+<li>
+<p>感受野（Receptive Field）：卷积神经网络各输出特征图的每个像素点，在原始输入图片上映射区域的大小。</p>
+<figure data-type="image" tabindex="6"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180551055-6.png" alt="5-6" loading="lazy"></figure>
+<p>上述两个感受野相同，故特征提取能力是一样的。</p>
+</li>
+<li>
+<p>如何选择，则需要考虑计算量</p>
+<figure data-type="image" tabindex="7"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180551105-7.png" alt="5-7" loading="lazy"></figure>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>9</mn><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><mo>)</mo><mo>+</mo><mn>9</mn><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><mo>−</mo><mn>2</mn><mo>)</mo><mo>(</mo><mi>x</mi><mo>−</mo><mn>2</mn><mo>−</mo><mn>2</mn><mo>)</mo><mo>=</mo><mn>18</mn><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>180</mn><mi>x</mi><mo>+</mo><mn>180</mn><mspace linebreak="newline"></mspace><mn>25</mn><mo>(</mo><mi>x</mi><mo>−</mo><mn>4</mn><mo>)</mo><mo>(</mo><mi>x</mi><mo>−</mo><mn>4</mn><mo>)</mo><mo>=</mo><mn>25</mn><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mn>200</mn><mi>x</mi><mo>+</mo><mn>400</mn></mrow><annotation encoding="application/x-tex">9(x-2)(x-2) + 9(x-2-2)(x-2-2)=18x^2-180x+180\\
+25(x-4)(x-4) = 25x^2-200x+400
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">9</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">9</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.9474379999999999em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">8</span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641079999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">8</span><span class="mord">0</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">8</span><span class="mord">0</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">4</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">4</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.9474379999999999em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord"><span class="mord mathdefault">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641079999999999em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mord">0</span><span class="mord mathdefault">x</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord">0</span><span class="mord">0</span></span></span></span></span></p>
+</li>
+</ul>
+<h4 id="53-全零填充-padding">5.3 全零填充 (Padding)</h4>
+<figure data-type="image" tabindex="8"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180931445-8.png" alt="5-8" loading="lazy"></figure>
+<ul>
+<li>
+<p>卷积特征图维度计算公式</p>
+<figure data-type="image" tabindex="9"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180931505-9.png" alt="5-9" loading="lazy"></figure>
+<p>TensorFlow用参数<code>padding='SAME'</code> 或者 <code>padding='VALID'</code> 表示是否为全零填充</p>
+</li>
+</ul>
+<h4 id="54-tensorflow-描述卷积计算层">5.4 TensorFlow 描述卷积计算层</h4>
+<pre><code class="language-python">tf.keras.layers.Conv2D(
+    filters=卷积核个数,
+    kernel_size=卷积核尺寸,  #  正方形写核长整数，或（核高h，核宽w）
+    strides=滑动步长,  # 横纵向相同写步长整数，或（纵向步长h，横向步长w），默认1
+    padding='same' or 'valid',  # 使用全零填充是'same'，不使用是'valid'(默认)
+    activation='relu' or 'sigmoid' or 'tanh' or 'softmax'等,  # 如有BN(批标准化)此处不写
+    input_shape=(高, 宽, 通道数)  # 输入特征图维度，可省略
+)
+</code></pre>
+<pre><code class="language-python">model = tf.keras.models.Sequential([
+    Conv2D(6, 5, padding='valid', activation='sigmoid'),
+    MaxPool2D(2, 2),
+    Conv2D(6, (5, 5), padding='valid', activation='sigmoid'),
+    MaxPool2D(2, (2, 2)),
+    Conv2D(filters=6, kernel_size=(5, 5), padding='valid', activation='sigmoid'),
+    MaxPool2D(pool_size(2, 2), strides=2),
+    Flatten(),
+    Dense(10, activation='softmax')
+])
+</code></pre>
+<h4 id="55-批标准化batch-normalization-bn">5.5 批标准化（Batch Normalization, BN）</h4>
+<p>标准化：使数据符合0均值，1为标准差的分布。<br>
+批标准化：对一小批数据（batch），做标准化处理。</p>
+<p>批标准化后，第k个卷积核的输出特征图（feature map）中第i个像素点</p>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><msup><mi>H</mi><mo mathvariant="normal">′</mo></msup><mi>i</mi><mi>k</mi></msubsup><mo>=</mo><mfrac><mrow><msubsup><mi>H</mi><mi>i</mi><mi>k</mi></msubsup><mo>−</mo><msubsup><mi>μ</mi><mrow><mi>b</mi><mi>a</mi><mi>t</mi><mi>c</mi><mi>h</mi></mrow><mi>k</mi></msubsup></mrow><msubsup><mi>δ</mi><mrow><mi>b</mi><mi>a</mi><mi>t</mi><mi>c</mi><mi>h</mi></mrow><mi>k</mi></msubsup></mfrac></mrow><annotation encoding="application/x-tex">{H&#x27;}_{i}^{k}=\frac{H_i^k-\mu_{batch}^k}{\delta_{batch}^k}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2879em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.801892em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.0409em;"><span style="top:-2.4530000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span style="top:-3.254792em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.548324em;vertical-align:-1.0222159999999998em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.526108em;"><span style="top:-2.2790920000000003em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.03785em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8309079999999999em;"><span style="top:-2.398692em;margin-left:-0.03785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">b</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">c</span><span class="mord mathdefault mtight">h</span></span></span></span><span style="top:-3.0448em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.30130799999999996em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.441336em;margin-left:-0.08125em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.4168920000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">b</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">c</span><span class="mord mathdefault mtight">h</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2831079999999999em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.0222159999999998em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<figure data-type="image" tabindex="10"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180931575-10.png" alt="5-10" loading="lazy"></figure>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>H</mi><mi>i</mi><mi>k</mi></msubsup></mrow><annotation encoding="application/x-tex">H_i^k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.107772em;vertical-align:-0.258664em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.441336em;margin-left:-0.08125em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span></span></span></span>: 批标准化前，第k个卷积核，输出特征图第i个像素点</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>μ</mi><mrow><mi>b</mi><mi>a</mi><mi>t</mi><mi>c</mi><mi>h</mi></mrow><mi>k</mi></msubsup></mrow><annotation encoding="application/x-tex">\mu_{batch}^k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.132216em;vertical-align:-0.2831079999999999em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.4168920000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">b</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">c</span><span class="mord mathdefault mtight">h</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2831079999999999em;"><span></span></span></span></span></span></span></span></span></span>: 批标准化前，第k个卷积核，batch张输出特征图中所有像素点平均值</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>δ</mi><mrow><mi>b</mi><mi>a</mi><mi>t</mi><mi>c</mi><mi>h</mi></mrow><mi>k</mi></msubsup></mrow><annotation encoding="application/x-tex">\delta_{batch}^k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.132216em;vertical-align:-0.2831079999999999em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03785em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.4168920000000003em;margin-left:-0.03785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">b</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">c</span><span class="mord mathdefault mtight">h</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2831079999999999em;"><span></span></span></span></span></span></span></span></span></span>: 批标准化前，第k个卷积核，batch张输出特征图中所有像素点标准差</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>μ</mi><mrow></mrow><mi>k</mi></msubsup><mo>=</mo><mfrac><mn>1</mn><mi>m</mi></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><msubsup><mi>H</mi><mi>i</mi><mi>k</mi></msubsup></mrow><annotation encoding="application/x-tex">\mu_{}^k=\frac{1}{m}\sum_{i=1}^m H_i^k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.096108em;vertical-align:-0.247em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.4530000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.194108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.804292em;"><span style="top:-2.40029em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29971000000000003em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.441336em;margin-left:-0.08125em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.258664em;"><span></span></span></span></span></span></span></span></span></span>             <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msubsup><mi>δ</mi><mrow><mi>b</mi><mi>a</mi><mi>t</mi><mi>c</mi><mi>h</mi></mrow><mi>k</mi></msubsup><mo>=</mo><msqrt><mrow><mi>δ</mi><mo>+</mo><mfrac><mn>1</mn><mi>m</mi></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>m</mi></msubsup><mo>(</mo><msubsup><mi>H</mi><mi>i</mi><mi>k</mi></msubsup><mo>−</mo><msubsup><mi>μ</mi><mrow><mi>b</mi><mi>a</mi><mi>t</mi><mi>c</mi><mi>h</mi></mrow><mi>k</mi></msubsup><msup><mo>)</mo><mn>2</mn></msup></mrow></msqrt></mrow><annotation encoding="application/x-tex">\delta_{batch}^k =\sqrt{\delta+\frac{1}{m}\sum_{i=1}^m (H_i^k-\mu_{batch}^k)^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.132216em;vertical-align:-0.2831079999999999em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03785em;">δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.849108em;"><span style="top:-2.4168920000000003em;margin-left:-0.03785em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">b</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">c</span><span class="mord mathdefault mtight">h</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2831079999999999em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.84em;vertical-align:-0.604946em;"></span><span class="mord sqrt"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.235054em;"><span class="svg-align" style="top:-3.8em;"><span class="pstrut" style="height:3.8em;"></span><span class="mord" style="padding-left:1em;"><span class="mord mathdefault" style="margin-right:0.03785em;">δ</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">m</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mop"><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.804292em;"><span style="top:-2.40029em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3.2029em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">m</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.29971000000000003em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.830908em;"><span style="top:-2.4231360000000004em;margin-left:-0.08125em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span><span style="top:-3.0448000000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.27686399999999994em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mord"><span class="mord mathdefault">μ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8309079999999999em;"><span style="top:-2.398692em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">b</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">c</span><span class="mord mathdefault mtight">h</span></span></span></span><span style="top:-3.0448em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.30130799999999996em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.740108em;"><span style="top:-2.9890000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span><span style="top:-3.195054em;"><span class="pstrut" style="height:3.8em;"></span><span class="hide-tail" style="min-width:1.02em;height:1.8800000000000001em;"><svg width='400em' height='1.8800000000000001em' viewBox='0 0 400000 1944' preserveAspectRatio='xMinYMin slice'><path d='M1001,80H400000v40H1013.1s-83.4,268,-264.1,840c-180.7,
+572,-277,876.3,-289,913c-4.7,4.7,-12.7,7,-24,7s-12,0,-12,0c-1.3,-3.3,-3.7,-11.7,
+-7,-25c-35.3,-125.3,-106.7,-373.3,-214,-744c-10,12,-21,25,-33,39s-32,39,-32,39
+c-6,-5.3,-15,-14,-27,-26s25,-30,25,-30c26.7,-32.7,52,-63,76,-91s52,-60,52,-60
+s208,722,208,722c56,-175.3,126.3,-397.3,211,-666c84.7,-268.7,153.8,-488.2,207.5,
+-658.5c53.7,-170.3,84.5,-266.8,92.5,-289.5c4,-6.7,10,-10,18,-10z
+M1001 80H400000v40H1013z'/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.604946em;"><span></span></span></span></span></span></span></span></span></p>
+<ul>
+<li>
+<p>为每个卷积核**引入可训练参数<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>γ</mi></mrow><annotation encoding="application/x-tex">\gamma</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05556em;">γ</span></span></span></span>和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>β</mi></mrow><annotation encoding="application/x-tex">\beta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05278em;">β</span></span></span></span>，调整批归一化的力度。</p>
+<figure data-type="image" tabindex="11"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932045-11.png" alt="5-11" loading="lazy"></figure>
+</li>
+<li>
+<p>BN层位于卷积层之后，激活层之前。</p>
+<p><code>卷积(Convolutional)</code>  →  <code>批标准化(BN)</code>  →  <code>激活(Activation)</code></p>
+</li>
+<li>
+<p>TensorFlow 描述批标准化</p>
+<p><code>tf.keras.layers.BatchNormalization()</code></p>
+<pre><code class="language-python">model = tf.keras.models.Sequential([
+    Conv2D(filters=6, kernel_size=(5, 5), padding='same'),  # 卷积层
+    BatchNormalization(),  # BN层
+    Activation('relu'),  # 激活层
+    MaxPool2D(pool_size(2, 2), strides=2, padding='same'),  #池化层
+    Dropout(0.2)  # Dropout层
+])
+</code></pre>
+</li>
+</ul>
+<h4 id="56-池化pooling">5.6 池化（Pooling）</h4>
+<p>池化用于减少特征数据量。<br>
+<strong>最大池化</strong>可提取图片纹理，<strong>均值池化</strong>可保留背景特征。</p>
+<figure data-type="image" tabindex="12"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932125-12.png" alt="5-12" loading="lazy"></figure>
+<ul>
+<li>
+<p>TensorFlow 描述池化</p>
+<pre><code class="language-python"># 最大池化
+tf.keras.layers.MaxPool2D(
+    pool_size=池化核尺寸,  # 正方形写核长整数，或（核高h，核宽w）
+    sreides=池化步长,  # 步长整数，或（纵向步长h，横向步长w），默认为pool_size
+    padding='valid' or 'same'  # 使用全零填充是'same'，不使用是'valid'（默认）
+)
+</code></pre>
+<pre><code class="language-python"># 均值池化
+tf.keras.layers.MaxPool2D(
+    pool_size=池化核尺寸,  # 正方形写核长整数，或（核高h，核宽w）
+    sreides=池化步长,  # 步长整数，或（纵向步长h，横向步长w），默认为pool_size
+    padding='valid' or 'same'  # 使用全零填充是'same'，不使用是'valid'（默认）
+)
+</code></pre>
+<pre><code class="language-python">model = tf.keras.layers.models.Sequential([
+    Conv2D(filters=6, kernel_size=(5, 5), padding='same'),  # 卷积层
+    BatchNormalization(),  # BN层
+    Activation('relu'),  # 激活层
+    MaxPool2D(pool_size=(2, 2), strides=2, padding='same'),  # 池化层
+    Dropout(0.2)  # Dropout层
+])
+</code></pre>
+</li>
+</ul>
+<h4 id="57-舍弃dropout">5.7 舍弃（Dropout）</h4>
+<p>在神经网络训练时，（为了缓解神经网络的过拟合）将一部分神经元按照一定概率从神经网络中暂时舍弃。神经网络使用时，被舍弃的神经元恢复链接。</p>
+<figure data-type="image" tabindex="13"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932215-13.png" alt="5-13" loading="lazy"></figure>
+<p><code>tf.keras.layers.Dropout(舍弃的概率)</code></p>
+<pre><code class="language-python">model = tf.keras.layers.models.Sequential([
+    Conv2D(filters=6, kernel_size=(5, 5), padding='same'),  # 卷积层
+    BatchNormalization(),  # BN层
+    Activation('relu'),  # 激活层
+    MaxPool2D(pool_size=(2, 2), strides=2, padding='same'),  # 池化层
+    Dropout(0.2)  # Dropout层  随机舍弃20%的神经元
+])
+</code></pre>
+<h4 id="58-卷积神经网络小结">5.8 卷积神经网络小结</h4>
+<p>卷积神经网络：借助卷积核提取特征后，送入全连接网络。</p>
+<ul>
+<li>
+<p>卷积神经网络的主要模块</p>
+<p><code>卷积(Convolutional)</code>、<code>批标准化(BN)</code>、<code>激活(Activation)</code>、<code>池化(Pooling)</code>、<code>全连接(FC)</code></p>
+<p>前四个是对输入特征提取</p>
+</li>
+<li>
+<p>卷积是什么？  <strong>卷积就是特征提取器，就是CBAPD</strong></p>
+<pre><code class="language-python">model = tf.keras.layers.models.Sequential([
+    Conv2D(filters=6, kernel_size=(5, 5), padding='same'),  # C
+    BatchNormalization(),  # B
+    Activation('relu'),  # A
+    MaxPool2D(pool_size=(2, 2), strides=2, padding='same'),  # P
+    Dropout(0.2)  # D
+])
+</code></pre>
+</li>
+</ul>
+<h4 id="59-cifar10数据集">5.9 CIFAR10数据集</h4>
+<p><code>提供5万张32*32像素点的十分类彩色图片和标签，用于训练。 提供1万张32*32像素点的十分类彩色图片和标签，用于测试。</code></p>
+<figure data-type="image" tabindex="14"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932275-14.png" alt="5-14" loading="lazy"></figure>
+<ul>
+<li>
+<p>导入cifar10数据集：</p>
+<pre><code class="language-python">cifar10 = tf.keras.datasets.cifar10
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+</code></pre>
+<pre><code class="language-python">plt.imshow(x_train[0])  # 绘制图片
+plt.show()
+</code></pre>
+<pre><code class="language-python">print('x_train[0]:\n', x_train[0])
+print('y_train[0]:', y_train[0])
+print('x_test.shape:', x_test.shape)
+</code></pre>
+</li>
+</ul>
+<h4 id="510-卷积神经网络搭建示例">5.10 卷积神经网络搭建示例</h4>
+<pre><code>C(核：6*5*5，步长：1，填充：same)
+B(yes)
+A(relu)
+P(max，核：2*2，步长：2，填充：same)
+D(0.2)
+
+Flatten
+Dense(神经元：128，激活：relu，Dropout：0.2)
+Dense(神经元：10，激活：softmax)
+</code></pre>
+<pre><code class="language-python"># 其他不同网络结构也仅在此处class定义结构的不同
+class Baseline(Model):
+    def __init__(self):
+        super(Baseline, self).__init__()
+        self.c1 = Conv2D(filters=6, kernel_size=(5, 5), padding='same')
+        self.b1 = BatchNormalization()
+        self.a1 = Activation()
+        self.p1 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')
+        self.d1 = Dropout(0.2)
+        
+        self.flatten = Flatten()
+        self.f1 = Dense(128, activation='relu')
+        self.d2 = Dropout(0.2)
+        self.f2 = Dense(10, activation='softmax')
+    
+    def call(self, x):
+        x = self.c1(x)
+        x = self.b1(x)
+        x = self.a1(x)
+        x = self.p1(x)
+        x = self.d1(x)
+        
+        x = self.flatten(x)
+        x = self.f1(x)
+        x = self.d2(x)
+        y = self.f2(x)
+        return y
+</code></pre>
+<ul>
+<li>
+<p>完整cifar10代码</p>
+<pre><code class="language-python">import tensorflow as tf
+import os
+import numpy as np
+from matplotlib import pyplot as plt
+from tensorflow.keras.layers import Conv2D, BatchNormalization, Activation, MaxPool2D, Dropout, Flatten, Dense
+from tensorflow.keras import Model
+
+np.set_printoptions(threshold=np.inf)
+
+cifar10 = tf.keras.datasets.cifar10
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+
+class Baseline(Model):
+    def __init__(self):
+        super(Baseline, self).__init__()
+        self.c1 = Conv2D(filters=6, kernel_size=(5, 5), padding='same')  # 卷积层
+        self.b1 = BatchNormalization()  # BN层
+        self.a1 = Activation('relu')  # 激活层
+        self.p1 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')  # 池化层
+        self.d1 = Dropout(0.2)  # dropout层
+
+        self.flatten = Flatten()
+        self.f1 = Dense(128, activation='relu')
+        self.d2 = Dropout(0.2)
+        self.f2 = Dense(10, activation='softmax')
+
+    def call(self, x):
+        x = self.c1(x)
+        x = self.b1(x)
+        x = self.a1(x)
+        x = self.p1(x)
+        x = self.d1(x)
+
+        x = self.flatten(x)
+        x = self.f1(x)
+        x = self.d2(x)
+        y = self.f2(x)
+        return y
+
+
+model = Baseline()
+
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              metrics=['sparse_categorical_accuracy'])
+
+checkpoint_save_path = &quot;./checkpoint/Baseline.ckpt&quot;
+if os.path.exists(checkpoint_save_path + '.index'):
+    print('-------------load the model-----------------')
+    model.load_weights(checkpoint_save_path)
+
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_save_path,
+                                                 save_weights_only=True,
+                                                 save_best_only=True)
+
+history = model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1,
+                    callbacks=[cp_callback])
+model.summary()
+
+# print(model.trainable_variables)
+file = open('./weights.txt', 'w')
+for v in model.trainable_variables:
+    file.write(str(v.name) + '\n')
+    file.write(str(v.shape) + '\n')
+    file.write(str(v.numpy()) + '\n')
+file.close()
+
+###############################################    show   ###############################################
+
+# 显示训练集和验证集的acc和loss曲线
+acc = history.history['sparse_categorical_accuracy']
+val_acc = history.history['val_sparse_categorical_accuracy']
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+plt.subplot(1, 2, 1)
+plt.plot(acc, label='Training Accuracy')
+plt.plot(val_acc, label='Validation Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(loss, label='Training Loss')
+plt.plot(val_loss, label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.legend()
+plt.show()
+
+
+# 运行结果
+# Epoch 4/5
+# 1563/1563 [==============================] - 4s 3ms/step - loss: 1.1299 - sparse_categorical_accuracy: 0.5955 - val_loss: 1.4539 - val_sparse_categorical_accuracy: 0.5108
+# Epoch 5/5
+# 1563/1563 [==============================] - 4s 3ms/step - loss: 1.1136 - sparse_categorical_accuracy: 0.6032 - val_loss: 1.1590 - val_sparse_categorical_accuracy: 0.5951
+# Model: &quot;baseline&quot;
+# _________________________________________________________________
+# Layer (type)                 Output Shape              Param #   
+# =================================================================
+# conv2d (Conv2D)              multiple                  456       
+# _________________________________________________________________
+# batch_normalization (BatchNo multiple                  24        
+# _________________________________________________________________
+# activation (Activation)      multiple                  0         
+# _________________________________________________________________
+# max_pooling2d (MaxPooling2D) multiple                  0         
+# _________________________________________________________________
+# dropout (Dropout)            multiple                  0         
+# _________________________________________________________________
+# flatten (Flatten)            multiple                  0         
+# _________________________________________________________________
+# dense (Dense)                multiple                  196736    
+# _________________________________________________________________
+# dropout_1 (Dropout)          multiple                  0         
+# _________________________________________________________________
+# dense_1 (Dense)              multiple                  1290      
+# =================================================================
+# Total params: 198,506
+# Trainable params: 198,494
+# Non-trainable params: 12
+# _________________________________________________________________
+# 
+# Process finished with exit code 0
+</code></pre>
+</li>
+</ul>
+<h4 id="511-经典卷积网络lenet">5.11 经典卷积网络——LeNet</h4>
+<p>LeNet由Yann LeCun于1998年提出，卷积网络开篇之作。</p>
+<blockquote>
+<p>Yann Lecun, Leon Bottou, Y. Bengio, Patrick Haffner. Gradient-Based Learning Applied to Document Recognition. Proceedings of the IEEE, 1998</p>
+</blockquote>
+<p>通过共享卷积核，减小了网络参数。</p>
+<figure data-type="image" tabindex="15"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932315-15.png" alt="5-15" loading="lazy"></figure>
+<p>None表示LeNet提出当时还没有这些操作。</p>
+<ul>
+<li>
+<p>LeNet网络结构</p>
+<pre><code class="language-python">class LeNet5(Model):
+    def __init__(self):
+        super(LeNet5, self).__init__()
+        self.c1 = Conv2D(filters=6, kernel_size=(5, 5), activation='sigmoid')
+        self.p1 = MaxPool2D(pool_size=(2, 2), strides=2)
+        self.c2 = Conv2D(filters=16, kernel_size=(5, 5), activation='sigmoid')
+        self.p2 = MaxPool2D(pool_size=(2, 2), strides=2)
+        
+        self.flatten = Flatten()
+        self.f1 = Dense(120, activation='sigmoid')
+        self.f2 = Dense(84, activation='sigmoid')
+        self.f3 = Dense(10, activation='softmax')
+
+    def call(self, x):
+        x = self.c1(x)
+        x = self.p1(x)
+
+        x = self.c2(x)
+        x = self.p2(x)
+
+        x = self.flatten(x)
+        x = self.f1(x)
+        x = self.f2(x)
+        y = self.f3(x)
+        return y
+</code></pre>
+</li>
+</ul>
+<h4 id="512-经典卷积网络alexnet">5.12 经典卷积网络——AlexNet</h4>
+<p>AlexNet网络诞生于2012年，当年ImageNet竞赛的冠军，Top5错误率为16.4%。</p>
+<blockquote>
+<p>Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton. ImageNet Classification with Deep Convolutional Neural Networks. In NIPS, 2012</p>
+</blockquote>
+<figure data-type="image" tabindex="16"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932385-16.png" alt="5-16" loading="lazy"></figure>
+<ul>
+<li>
+<p>AlexNet class 代码</p>
+<pre><code class="language-python">class AlexNet8(Model):
+    def __init__(self):
+        super(AlexNet8, self).__init__()
+        self.c1 = Conv2D(filters=96, kernel_size=(3, 3))
+        self.b1 = BatchNormalization()
+        self.a1 = Activation('relu')
+        self.p1 = MaxPool2D(pool_size=(3, 3), strides=2)
+        
+        self.c2 = Conv2D(filters=256, kernel_size=(3, 3))
+        self.b2 = BatchNormalization()
+        self.a2 = Activation('relu')
+        self.p2 = MaxPool2D(pool_size=(3, 3), strides=2)
+        
+        self.c3 = Conv2D(filters=384, kernel_size=(3, 3), padding='same', activation='relu')
+                         
+        self.c4 = Conv2D(filters=384, kernel_size=(3, 3), padding='same', activation='relu')
+                         
+        self.c5 = Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu')
+        self.p3 = MaxPool2D(pool_size=(3, 3), strides=2)
+
+        self.flatten = Flatten()
+        self.f1 = Dense(2048, activation='relu')
+        self.d1 = Dropout(0.5)
+        self.f2 = Dense(2048, activation='relu')
+        self.d2 = Dropout(0.5)
+        self.f3 = Dense(10, activation='softmax')
+
+    def call(self, x):
+        x = self.c1(x)
+        x = self.b1(x)
+        x = self.a1(x)
+        x = self.p1(x)
+
+        x = self.c2(x)
+        x = self.b2(x)
+        x = self.a2(x)
+        x = self.p2(x)
+
+        x = self.c3(x)
+
+        x = self.c4(x)
+
+        x = self.c5(x)
+        x = self.p3(x)
+
+        x = self.flatten(x)
+        x = self.f1(x)
+        x = self.d1(x)
+        x = self.f2(x)
+        x = self.d2(x)
+        y = self.f3(x)
+        return y
+</code></pre>
+</li>
+</ul>
+<h4 id="513-经典卷积网络vggnet">5.13 经典卷积网络——VGGNet</h4>
+<p>VGGNet诞生于2014年，当年ImageNet竞赛的亚军，Top5错误率减小到7.3%。</p>
+<blockquote>
+<p>K. Simonyan, A. Zisserman. Very Deep Convolutional Networks for Large-Scale Image Recognition.In ICLR, 2015.</p>
+</blockquote>
+<figure data-type="image" tabindex="17"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932445-17.png" alt="5-17" loading="lazy"></figure>
+<ul>
+<li>
+<p>VGGNet class 代码</p>
+<pre><code class="language-python">class VGG16(Model):
+    def __init__(self):
+        super(VGG16, self).__init__()
+        self.c1 = Conv2D(filters=64, kernel_size=(3, 3), padding='same')  # 卷积层1
+        self.b1 = BatchNormalization()  # BN层1
+        self.a1 = Activation('relu')  # 激活层1
+        
+        self.c2 = Conv2D(filters=64, kernel_size=(3, 3), padding='same')
+        self.b2 = BatchNormalization()  # BN层1
+        self.a2 = Activation('relu')  # 激活层1
+        self.p1 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')
+        self.d1 = Dropout(0.2)  # dropout层
+
+        self.c3 = Conv2D(filters=128, kernel_size=(3, 3), padding='same')
+        self.b3 = BatchNormalization()  # BN层1
+        self.a3 = Activation('relu')  # 激活层1
+        
+        self.c4 = Conv2D(filters=128, kernel_size=(3, 3), padding='same')
+        self.b4 = BatchNormalization()  # BN层1
+        self.a4 = Activation('relu')  # 激活层1
+        self.p2 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')
+        self.d2 = Dropout(0.2)  # dropout层
+
+        self.c5 = Conv2D(filters=256, kernel_size=(3, 3), padding='same')
+        self.b5 = BatchNormalization()  # BN层1
+        self.a5 = Activation('relu')  # 激活层1
+        
+        self.c6 = Conv2D(filters=256, kernel_size=(3, 3), padding='same')
+        self.b6 = BatchNormalization()  # BN层1
+        self.a6 = Activation('relu')  # 激活层1
+        
+        self.c7 = Conv2D(filters=256, kernel_size=(3, 3), padding='same')
+        self.b7 = BatchNormalization()
+        self.a7 = Activation('relu')
+        self.p3 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')
+        self.d3 = Dropout(0.2)
+
+        self.c8 = Conv2D(filters=512, kernel_size=(3, 3), padding='same')
+        self.b8 = BatchNormalization()  # BN层1
+        self.a8 = Activation('relu')  # 激活层1
+        
+        self.c9 = Conv2D(filters=512, kernel_size=(3, 3), padding='same')
+        self.b9 = BatchNormalization()  # BN层1
+        self.a9 = Activation('relu')  # 激活层1
+        
+        self.c10 = Conv2D(filters=512, kernel_size=(3, 3), padding='same')
+        self.b10 = BatchNormalization()
+        self.a10 = Activation('relu')
+        self.p4 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')
+        self.d4 = Dropout(0.2)
+
+        self.c11 = Conv2D(filters=512, kernel_size=(3, 3), padding='same')
+        self.b11 = BatchNormalization()  # BN层1
+        self.a11 = Activation('relu')  # 激活层1
+        
+        self.c12 = Conv2D(filters=512, kernel_size=(3, 3), padding='same')
+        self.b12 = BatchNormalization()  # BN层1
+        self.a12 = Activation('relu')  # 激活层1
+        
+        self.c13 = Conv2D(filters=512, kernel_size=(3, 3), padding='same')
+        self.b13 = BatchNormalization()
+        self.a13 = Activation('relu')
+        self.p5 = MaxPool2D(pool_size=(2, 2), strides=2, padding='same')
+        self.d5 = Dropout(0.2)
+
+        self.flatten = Flatten()  # 未计入层数
+        self.f1 = Dense(512, activation='relu')
+        self.d6 = Dropout(0.2)
+        self.f2 = Dense(512, activation='relu')
+        self.d7 = Dropout(0.2)
+        self.f3 = Dense(10, activation='softmax')
+
+    def call(self, x):
+        x = self.c1(x)
+        x = self.b1(x)
+        x = self.a1(x)
+        x = self.c2(x)
+        x = self.b2(x)
+        x = self.a2(x)
+        x = self.p1(x)
+        x = self.d1(x)
+
+        x = self.c3(x)
+        x = self.b3(x)
+        x = self.a3(x)
+        x = self.c4(x)
+        x = self.b4(x)
+        x = self.a4(x)
+        x = self.p2(x)
+        x = self.d2(x)
+
+        x = self.c5(x)
+        x = self.b5(x)
+        x = self.a5(x)
+        x = self.c6(x)
+        x = self.b6(x)
+        x = self.a6(x)
+        x = self.c7(x)
+        x = self.b7(x)
+        x = self.a7(x)
+        x = self.p3(x)
+        x = self.d3(x)
+
+        x = self.c8(x)
+        x = self.b8(x)
+        x = self.a8(x)
+        x = self.c9(x)
+        x = self.b9(x)
+        x = self.a9(x)
+        x = self.c10(x)
+        x = self.b10(x)
+        x = self.a10(x)
+        x = self.p4(x)
+        x = self.d4(x)
+
+        x = self.c11(x)
+        x = self.b11(x)
+        x = self.a11(x)
+        x = self.c12(x)
+        x = self.b12(x)
+        x = self.a12(x)
+        x = self.c13(x)
+        x = self.b13(x)
+        x = self.a13(x)
+        x = self.p5(x)
+        x = self.d5(x)
+
+        x = self.flatten(x)
+        x = self.f1(x)
+        x = self.d6(x)
+        x = self.f2(x)
+        x = self.d7(x)
+        y = self.f3(x)
+        return y
+</code></pre>
+</li>
+</ul>
+<h4 id="514-经典卷积网络inceptionnet">5.14 经典卷积网络——InceptionNet</h4>
+<p>InceptionNet诞生于2014年，当年ImageNet竞赛冠军，Top5错误率为6.67%。</p>
+<blockquote>
+<p>Szegedy C, Liu W, Jia Y, et al. Going Deeper with Convolutions. In CVPR, 2015.</p>
+</blockquote>
+<figure data-type="image" tabindex="18"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932495-18.png" alt="5-18" loading="lazy"></figure>
+<blockquote>
+<p>同一层网络内使用不同尺寸的卷积核，提升了模型感知力；使用了批标准化，缓解了梯度消失。</p>
+</blockquote>
+<ul>
+<li>
+<p>InceptionNet class 代码</p>
+<pre><code class="language-python">class ConvBNRelu(Model):
+    def __init__(self, ch, kernelsz=3, strides=1, padding='same'):
+        super(ConvBNRelu, self).__init__()
+        self.model = tf.keras.models.Sequential([
+            Conv2D(ch, kernelsz, strides=strides, padding=padding),
+            BatchNormalization(),
+            Activation('relu')
+        ])
+
+    def call(self, x):
+        x = self.model(x, training=False) #在training=False时，BN通过整个训练集计算均值、方差去做批归一化，training=True时，通过当前batch的均值、方差去做批归一化。推理时 training=False效果好
+        return x
+    
+    
+class InceptionBlk(Model):
+    def __init__(self, ch, strides=1):
+        super(InceptionBlk, self).__init__()
+        self.ch = ch
+        self.strides = strides
+        self.c1 = ConvBNRelu(ch, kernelsz=1, strides=strides)
+        self.c2_1 = ConvBNRelu(ch, kernelsz=1, strides=strides)
+        self.c2_2 = ConvBNRelu(ch, kernelsz=3, strides=1)
+        self.c3_1 = ConvBNRelu(ch, kernelsz=1, strides=strides)
+        self.c3_2 = ConvBNRelu(ch, kernelsz=5, strides=1)
+        self.p4_1 = MaxPool2D(3, strides=1, padding='same')
+        self.c4_2 = ConvBNRelu(ch, kernelsz=1, strides=strides)
+
+    def call(self, x):
+        x1 = self.c1(x)
+        x2_1 = self.c2_1(x)
+        x2_2 = self.c2_2(x2_1)
+        x3_1 = self.c3_1(x)
+        x3_2 = self.c3_2(x3_1)
+        x4_1 = self.p4_1(x)
+        x4_2 = self.c4_2(x4_1)
+        # concat along axis=channel
+        x = tf.concat([x1, x2_2, x3_2, x4_2], axis=3)
+        return x
+
+class Inception10(Model):
+    def __init__(self, num_blocks, num_classes, init_ch=16, **kwargs):
+        super(Inception10, self).__init__(**kwargs)
+        self.in_channels = init_ch
+        self.out_channels = init_ch
+        self.num_blocks = num_blocks
+        self.init_ch = init_ch
+        self.c1 = ConvBNRelu(init_ch)
+        self.blocks = tf.keras.models.Sequential()
+        for block_id in range(num_blocks):
+            for layer_id in range(2):
+                if layer_id == 0:
+                    block = InceptionBlk(self.out_channels, strides=2)
+                else:
+                    block = InceptionBlk(self.out_channels, strides=1)
+                self.blocks.add(block)
+            # enlarger out_channels per block
+            self.out_channels *= 2
+        self.p1 = GlobalAveragePooling2D()
+        self.f1 = Dense(num_classes, activation='softmax')
+
+    def call(self, x):
+        x = self.c1(x)
+        x = self.blocks(x)
+        x = self.p1(x)
+        y = self.f1(x)
+        return y
+    
+model = Inception10(num_blocks=2, num_classes=10)
+</code></pre>
+</li>
+</ul>
+<h4 id="515-经典卷积网络resnet">5.15 经典卷积网络——ResNet</h4>
+<p>ResNet诞生于2015年，当年ImageNet竞赛冠军，Top5错误率为3.57%。</p>
+<blockquote>
+<p>Kaiming He, Xiangyu Zhang, Shaoqing Ren. Deep Residual Learning for Image Recognition. In CPVR, 2016</p>
+</blockquote>
+<ul>
+<li>
+<p>网络层数加深提高识别准确率</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">模型名称</th>
+<th style="text-align:center">网络层数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">LeNet</td>
+<td style="text-align:center">5</td>
+</tr>
+<tr>
+<td style="text-align:center">AlexNet</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">VGGNet</td>
+<td style="text-align:center">16/19</td>
+</tr>
+<tr>
+<td style="text-align:center">InceptionNet V1</td>
+<td style="text-align:center">22</td>
+</tr>
+</tbody>
+</table>
+<figure data-type="image" tabindex="19"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932545-19.png" alt="5-19" loading="lazy"></figure>
+</li>
+</ul>
+<blockquote>
+<p>ResNet提出了层间残差跳连，引入了前方信息，缓解梯度消失，使神经网络层数增加成为可能。</p>
+</blockquote>
+<ul>
+<li>
+<p>残差跳连</p>
+<figure data-type="image" tabindex="20"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180932595-20.png" alt="5-20" loading="lazy"></figure>
+<p>Inception块中的”+“是沿深度方向叠加（千层蛋糕层数叠加）<br>
+ResNet块中的”+“是特征图对应元素值相加（矩阵值相加）</p>
+</li>
+<li>
+<p>连接方式</p>
+<figure data-type="image" tabindex="21"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180933065-21.png" alt="5-21" loading="lazy"></figure>
+<p>两种堆叠不同的方法：（堆叠前后的维度会不相同）</p>
+<figure data-type="image" tabindex="22"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180933135-22.png" alt="5-22" loading="lazy"></figure>
+<pre><code class="language-python">class ResnetBlock(Model):
+
+    def __init__(self, filters, strides=1, residual_path=False):
+        super(ResnetBlock, self).__init__()
+        self.filters = filters
+        self.strides = strides
+        self.residual_path = residual_path
+
+        self.c1 = Conv2D(filters, (3, 3), strides=strides, padding='same', use_bias=False)
+        self.b1 = BatchNormalization()
+        self.a1 = Activation('relu')
+
+        self.c2 = Conv2D(filters, (3, 3), strides=1, padding='same', use_bias=False)
+        self.b2 = BatchNormalization()
+
+        # residual_path为True时，对输入进行下采样，即用1x1的卷积核做卷积操作，保证x能和F(x)维度相同，顺利相加
+        if residual_path:
+            self.down_c1 = Conv2D(filters, (1, 1), strides=strides, padding='same', use_bias=False)
+            self.down_b1 = BatchNormalization()
+        
+        self.a2 = Activation('relu')
+
+    def call(self, inputs):
+        residual = inputs  # residual等于输入值本身，即residual=x
+        # 将输入通过卷积、BN层、激活层，计算F(x)
+        x = self.c1(inputs)
+        x = self.b1(x)
+        x = self.a1(x)
+
+        x = self.c2(x)
+        y = self.b2(x)
+
+        if self.residual_path:
+            residual = self.down_c1(inputs)
+            residual = self.down_b1(residual)
+
+        out = self.a2(y + residual)  # 最后输出的是两部分的和，即F(x)+x或F(x)+Wx,再过激活函数
+        return out
+</code></pre>
+</li>
+<li>
+<p>ResNet 表示</p>
+<figure data-type="image" tabindex="23"><img src="https://images.cnblogs.com/cnblogs_com/ache/1998711/o_2107180933195-23.png" alt="5-23" loading="lazy"></figure>
+<pre><code class="language-python">class ResNet18(Model):
+
+    def __init__(self, block_list, initial_filters=64):  # block_list表示每个block有几个卷积层
+        super(ResNet18, self).__init__()
+        self.num_blocks = len(block_list)  # 共有几个block
+        self.block_list = block_list
+        self.out_filters = initial_filters
+        self.c1 = Conv2D(self.out_filters, (3, 3), strides=1, padding='same', use_bias=False)
+        self.b1 = BatchNormalization()
+        self.a1 = Activation('relu')
+        self.blocks = tf.keras.models.Sequential()
+        # 构建ResNet网络结构
+        for block_id in range(len(block_list)):  # 第几个resnet block
+            for layer_id in range(block_list[block_id]):  # 第几个卷积层
+
+                if block_id != 0 and layer_id == 0:  # 对除第一个block以外的每个block的输入进行下采样
+                    block = ResnetBlock(self.out_filters, strides=2, residual_path=True)
+                else:
+                    block = ResnetBlock(self.out_filters, residual_path=False)
+                self.blocks.add(block)  # 将构建好的block加入resnet
+            self.out_filters *= 2  # 下一个block的卷积核数是上一个block的2倍
+        self.p1 = tf.keras.layers.GlobalAveragePooling2D()
+        self.f1 = tf.keras.layers.Dense(10, activation='softmax', kernel_regularizer=tf.keras.regularizers.l2())
+
+    def call(self, inputs):
+        x = self.c1(inputs)
+        x = self.b1(x)
+        x = self.a1(x)
+        x = self.blocks(x)
+        x = self.p1(x)
+        y = self.f1(x)
+        return y
+model = ResNet18([2, 2, 2, 2])
+</code></pre>
+</li>
+</ul>
+<h4 id="516-经典卷积网络小结">5.16 经典卷积网络小结</h4>
+<ul>
+<li>
+<p>LeNet</p>
+<p>卷积网络开篇之作，共享卷积核，减少网络参数。</p>
+</li>
+<li>
+<p>AlexNet</p>
+<p>使用relu激活函数，提升训练速度；<br>
+使用Dropout，缓解过拟合。</p>
+</li>
+<li>
+<p>VGGNet</p>
+<p>小尺寸卷积核减少参数，网络结构规整，适合并行加速。</p>
+</li>
+<li>
+<p>InceptionNet</p>
+<p>一层内使用不同尺寸卷积核，提升感知力；使用BN（批标准化）操作，缓解梯度消失。</p>
+</li>
+<li>
+<p>ResNet</p>
+<p>层间残差跳连，引入前方信息，缓解模型退化，使神经网络层数加深成为可能。</p>
+</li>
+</ul>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://perfectqing.github.io/blogs/tag/S2mqBZ0HP/" class="tag">
+                    TensorFlow 笔记
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://perfectqing.github.io/blogs/post/第四章 神经网络八股功能扩展/">
+                  <h3 class="post-title">
+                    第四章 神经网络八股功能扩展
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>第三章 使用八股搭建神经网络 | BLOG</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://perfectqing.github.io/blogs/favicon.ico?v=1626771437070">
+<link rel="stylesheet" href="https://perfectqing.github.io/blogs/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="👏  第三章 使用八股搭建神经网络
+✍️  本讲目标：神经网络搭建八股、iris代码复现、MNIST数据集、训练MNIST数据集、Fashion数据集
+
+第三章 使用八股搭建神经网络
+本讲目标：
+
+神经网络搭建八股
+iris代码复现
+MN..." />
+    <meta name="keywords" content="TensorFlow 笔记" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://perfectqing.github.io/blogs">
+        <img src="https://perfectqing.github.io/blogs/images/avatar.png?v=1626771437070" class="site-logo">
+        <h1 class="site-title">BLOG</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Carry on what you want...
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> Copyright © AlsoRan | <a class="rss" href="https://perfectqing.github.io/blogs/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">第三章 使用八股搭建神经网络</h2>
+            <div class="post-date">2021-07-15</div>
+            
+              <div class="feature-container" style="background-image: url('https://perfectqing.github.io/blogs/post-images/hello-gridea.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>👏  第三章 使用八股搭建神经网络<br>
+✍️  本讲目标：神经网络搭建八股、iris代码复现、MNIST数据集、训练MNIST数据集、Fashion数据集</p>
+<!-- more -->
+<h2 id="第三章-使用八股搭建神经网络">第三章 使用八股搭建神经网络</h2>
+<p>本讲目标：</p>
+<ul>
+<li>神经网络搭建八股</li>
+<li>iris代码复现</li>
+<li>MNIST数据集</li>
+<li>训练MNIST数据集</li>
+<li>Fashion数据集</li>
+</ul>
+<h3 id="31-搭建网络八股-sequential">3.1 搭建网络八股 Sequential</h3>
+<h4 id="用-tensorflow-api-tfkeras-搭建网络八股">用 Tensorflow API: tf.keras 搭建网络八股</h4>
+<ul>
+<li>
+<p>六步法</p>
+<ul>
+<li><code>import</code></li>
+<li><code>train, test</code>  # 指定训练集特征和标签</li>
+<li><code>model = tf.keras.models.Sequential</code>  # 逐层描述网络</li>
+<li><code>model.compile</code>  # 使用哪种优化器、损失函数、评测指标等</li>
+<li><code>model.fit</code>  # 训练过程，告知训练集输入特征标签，batch，迭代次数</li>
+<li><code>model.summray</code>  # 打印出网络结构和参数统计</li>
+</ul>
+</li>
+<li>
+<p>model = tf.keras.models.Sequential([网络结构])  # 描述各层网络</p>
+<p>网络结构举例：</p>
+<ul>
+<li>
+<p>拉直层：tf.keras.layers.Flatten()</p>
+</li>
+<li>
+<p>全连接层：tf.keras.layers.Dense(神经元个数, activation=&quot;激活函数&quot;, kernel_regularizer=哪种正则化)</p>
+<p>activation('可选字符串'): relu, softmax, sigmoid, tanh<br>
+kernel_regularizer可选: tf.keras.regularizers.l1(), tf.kers.regularizers.l2()</p>
+</li>
+<li>
+<p>卷积层：tf.keras.layers.Conv2D(filters=卷积核个数, kernel_size=卷积核尺寸, strides=卷积步长, padding=&quot;valid&quot; or &quot;same&quot;)</p>
+</li>
+<li>
+<p>LSTM层：tf.keras.layers.LSTM()</p>
+</li>
+</ul>
+</li>
+<li>
+<p>model.compile(optimizer=优化器, loss=损失函数, metrics=['准确率'])</p>
+<p>Optimizer可选：(使用左边字符串或右边函数形式，自定义学习率等)</p>
+<ul>
+<li><code>'sgd'</code> or <code>tf.keras.optimizers.SGD(lr=学习率, momentum=动量参数)</code></li>
+<li><code>'adagrad'</code> or <code>tf.keras.optimizer.Adagrad(lr=学习率)</code></li>
+<li><code>'adadelta'</code> or <code>tf.keras.optimizer.Adadelta(lr=学习率)</code></li>
+<li><code>'adam'</code> or <code>tf.keras.optimizer.Adam(lr=学习率, beta_1=0.9, beta_2=0.999)</code></li>
+</ul>
+<p>loss可选：</p>
+<ul>
+<li><code>'mse'</code> or <code>tf,keras.losses.MeanSquaredError()</code></li>
+<li><code>'sparse_categorical_crossentropy'</code> or <code>tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)</code>  # 在询问是否是原始输出，经过概率分布为False，没有经过概率分布直接输出为True</li>
+</ul>
+<p>Metrics可选：</p>
+<ul>
+<li><code>'accuracy'</code>: y_ 和 y 都是数值，如 y_=[1]    y=[1]</li>
+<li><code>'categorical_accuracy'</code>: y_ 和 y 都是独热码（概率分布），如 y_=[0, 1, 0]    y=[0.256, 0.695, 0.048]</li>
+<li><code>'sparse_categorical_accuracy'</code>: y_ 是数值，y 是独热码（概率分布），如 y_=[1]    y=[0.256, 0.695, 0.048]</li>
+</ul>
+</li>
+<li>
+<p>model.fit()</p>
+<p><code>model.fit(训练集的输入特征, 训练集的标签, batch_size= , epocher= , validation_data=(测试集的输入特征，测试集的标签), validation_split=从训练集划分多少比例给测试集, validation_freq=多少次epoch测试一次)</code></p>
+<p>⭕ <code>validation_data</code>, <code>validation_split</code> 二选其一</p>
+</li>
+<li>
+<p>model.summary()  # 打印出网络的结构和参数统计</p>
+<pre><code class="language-powershell">Model: &quot;sequential&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+dense (Dense)                (None, 3)                 15
+=================================================================
+Total params: 15
+Trainable params: 15
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre>
+<p>上述为一个4输入层，3输出层的网络。 (4 * 3 + 3 = 15)</p>
+</li>
+<li>
+<p>p8_iris_sequential</p>
+<pre><code class="language-python">import tensorflow as tf
+from sklearn import datasets
+import numpy as np
+
+x_train = datasets.load_iris().data
+y_train = datasets.load_iris().target
+
+np.random.seed(116)
+np.random.shuffle(x_train)
+np.random.seed(116)
+np.random.shuffle(y_train)
+tf.random.set_seed(116)
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Dense(3, activation='softmax', kernel_regularizer=tf.keras.regularizers.l2())
+])
+
+model.compile(optimizer=tf.keras.optimizers.SGD(lr=0.1),
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              metrics=['sparse_categorical_accuracy'])
+
+model.fit(x_train, y_train, batch_size=32, epochs=500, validation_split=0.2, validation_freq=20)
+
+model.summary()
+
+# 运行结果
+# Epoch 498/500
+# 4/4 [==============================] - 0s 1ms/step - loss: 0.3509 - sparse_categorical_accuracy: 0.9658
+# Epoch 499/500
+# 4/4 [==============================] - 0s 1ms/step - loss: 0.3691 - sparse_categorical_accuracy: 0.9306
+# Epoch 500/500
+# 4/4 [==============================] - 0s 14ms/step - loss: 0.3634 - sparse_categorical_accuracy: 0.9304 - val_loss: 0.3516 - val_sparse_categorical_accuracy: 0.8667
+# Model: &quot;sequential&quot;
+# _________________________________________________________________
+# Layer (type)                 Output Shape              Param #   
+# =================================================================
+# dense (Dense)                (None, 3)                 15        
+# =================================================================
+# Total params: 15
+# Trainable params: 15
+# Non-trainable params: 0
+# _________________________________________________________________
+</code></pre>
+</li>
+</ul>
+<h3 id="32-搭建网络八股-class">3.2 搭建网络八股 class</h3>
+<ul>
+<li>
+<p>用Tensorflow API: tf.keras 搭建网络八股</p>
+<pre><code class="language-python">class MyModel(Model):  # Model表示继承了TensorFlow的Model类
+    def __init__(self):
+        super(MyModel, self).__init__()
+        定义网络结构块
+    def call(self, x):  # x 为输入数据
+        调用网络结构块，实现前向传播
+        return y
+model = MyModel()
+</code></pre>
+<p><code>__init__()</code>  定义所欲要网络结构块<br>
+<code>call()</code>   写出前向传播</p>
+</li>
+<li>
+<p>iris_class 代码</p>
+<pre><code class="language-python"># 与iris_sequential不同之处
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import Model
+
+class IrisModel(Model):
+    def __init__(self):
+        super(IrisModel, self).__init__()
+        self.d1 = Dense(3, activation='softmax', kernel_regularizer=tf.keras.regularizers.l2())
+
+    def call(self, x):
+        y = self.d1(x)
+        return y
+
+model = IrisModel()
+
+# 运行结果
+# 同iris_Sequential
+</code></pre>
+</li>
+</ul>
+<h3 id="33-mnist数据集">3.3 MNIST数据集：</h3>
+<p>提供6万张 28 * 28 像素点的 0~9 手写数字图片和标签，用于训练。<br>
+提供1万张 28 * 28 像素点的 0~9 手写数字图片和标签，用于测试。</p>
+<ol>
+<li>
+<p>导入MNIST数据集：</p>
+<pre><code class="language-python">mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+</code></pre>
+</li>
+<li>
+<p>作为输入特征，输入神经网络时，将数据拉伸为一维数组：</p>
+<pre><code class="language-python">tf.keras.layers.Flatten()
+# [0 0 0 48 238 252 252 ... ... ... 253 186 12 0 0 0 0 0 0]
+</code></pre>
+</li>
+<li>
+<p>可视化各个数据以及完整代码</p>
+<pre><code class="language-python">import tensorflow as tf
+from matplotlib import pyplot as plt
+
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# 可视化训练集输入特征的第一个元素
+plt.imshow(x_train[0], cmap='gray')  # 绘制灰度图
+plt.show()
+
+# 打印出训练集输入特征的第一个元素
+print(&quot;x_train[0]:\n&quot;, x_train[0])
+# 打印出训练集标签的第一个元素
+print(&quot;y_train[0]:\n&quot;, y_train[0])
+
+# 打印出整个训练集输入特征形状
+print(&quot;x_train.shape:\n&quot;, x_train.shape)
+# 打印出整个训练集标签的形状
+print(&quot;y_train.shape:\n&quot;, y_train.shape)
+# 打印出整个测试集输入特征的形状
+print(&quot;x_test.shape:\n&quot;, x_test.shape)
+# 打印出整个测试集标签的形状
+print(&quot;y_test.shape:\n&quot;, y_test.shape)
+
+# 运行结果
+# x_train[0]:
+#  '一个二维数组'
+# y_train[0]:
+#  5
+# x_train.shape:
+#  (60000, 28, 28)
+# y_train.shape:
+#  (60000,)
+# x_test.shape:
+#  (10000, 28, 28)
+# y_test.shape:
+#  (10000,)
+</code></pre>
+</li>
+</ol>
+<p><strong>💬 Codes 完整的Mnist手写数据集代码</strong></p>
+<pre><code class="language-python">import tensorflow as tf
+
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0  # 数值变小后更利于神经网络的吸收
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),  # 将数据集拉伸为一维
+    tf.keras.layers.Dense(128, activation='relu'),  # 第一个Dense是隐藏层
+    tf.keras.layers.Dense(10, activation='softmax')  # 第二个Dense是输出层
+])
+
+model.compile(
+    optimizer='adam',
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+    metrics=['sparse_categorical_accuracy']
+)
+
+model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1)
+model.summary()
+
+
+# 运行结果
+# Epoch 1/5
+# 2021-07-13 13:32:15.085136: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcublas.so.10
+# 1875/1875 [==============================] - 4s 2ms/step - loss: 0.4395 - sparse_categorical_accuracy: 0.8750 - val_loss: 0.1424 - val_sparse_categorical_accuracy: 0.9567
+# Epoch 2/5
+# 1875/1875 [==============================] - 4s 2ms/step - loss: 0.1232 - sparse_categorical_accuracy: 0.9626 - val_loss: 0.1036 - val_sparse_categorical_accuracy: 0.9679
+# Epoch 3/5
+# 1875/1875 [==============================] - 4s 2ms/step - loss: 0.0828 - sparse_categorical_accuracy: 0.9749 - val_loss: 0.0934 - val_sparse_categorical_accuracy: 0.9701
+# Epoch 4/5
+# 1875/1875 [==============================] - 3s 2ms/step - loss: 0.0582 - sparse_categorical_accuracy: 0.9827 - val_loss: 0.0789 - val_sparse_categorical_accuracy: 0.9742
+# Epoch 5/5
+# 1875/1875 [==============================] - 4s 2ms/step - loss: 0.0432 - sparse_categorical_accuracy: 0.9870 - val_loss: 0.0768 - val_sparse_categorical_accuracy: 0.9767
+# Model: &quot;sequential&quot;
+# _________________________________________________________________
+# Layer (type)                 Output Shape              Param #   
+# =================================================================
+# flatten (Flatten)            (None, 784)               0         
+# _________________________________________________________________
+# dense (Dense)                (None, 128)               100480    
+# _________________________________________________________________
+# dense_1 (Dense)              (None, 10)                1290      
+# =================================================================
+# Total params: 101,770
+# Trainable params: 101,770
+# Non-trainable params: 0
+# _________________________________________________________________
+</code></pre>
+<pre><code class="language-python"># class
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras import Model
+
+class MnistModel(Model):
+    def __init__(self):
+        super(MnistModel, self).__init__()
+        self.flatten = Flatten()
+        self.d1 = Dense(128, activation='relu')
+        self.d2 = Dense(10, activation='softmax')
+
+    def call(self, x):
+        x = self.flatten(x)
+        x = self.d1(x)
+        y = self.d2(x)
+        return y
+</code></pre>
+<h3 id="34-fashion数据集">3.4 FASHION数据集：</h3>
+<p>提供6万张 28 * 28 像素点的衣裤等图片和标签，用于训练。<br>
+提供1万张 28 * 28 像素点的衣裤等图片和标签，用于测试。</p>
+<ul>
+<li>
+<p>导入FASHION数据集：</p>
+<pre><code class="language-python">fashion = tf.keras.datasets.fashion_mnist
+(x_train, y_train), (x_test, y_test) = fashion.load_data()
+</code></pre>
+</li>
+</ul>
+<p><strong>💬 Codes</strong></p>
+<pre><code class="language-python">import tensorflow as tf
+
+fashion = tf.keras.datasets.fashion_mnist
+(x_train, y_train), (x_test, y_test) = fashion.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+model.compile(
+    optimizer='adam',
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+    metrics=['sparse_categorical_accuracy']
+)
+
+model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1)
+model.summary()
+
+# 运行结果
+# 记得自己动手 try 
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://perfectqing.github.io/blogs/tag/S2mqBZ0HP/" class="tag">
+                    TensorFlow 笔记
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://perfectqing.github.io/blogs/post/第二章 神经网络优化及参数更新/">
+                  <h3 class="post-title">
+                    第二章 神经网络优化及参数更新
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>
